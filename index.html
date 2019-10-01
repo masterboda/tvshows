@@ -39,14 +39,10 @@
 	<script src="/js/customSPA.js"></script>
 	<script>
 		let myApp = new App({
-			elm: '#app',
-			propereties: {
-				a: 'test',
-				someInt: 2124124,
-				someArr: ['one', 'two']
-			}
+			elm: '#app'
 		});
-
+		
+		
 		myApp.routeGet(['/', '/popular'], function(urlParams) {
 			myApp.requestAPI({
 				props: 'tv/popular',
@@ -70,6 +66,9 @@
 				myApp.qs('.tvshows-list').innerHTML = JSON.stringify(data);
 			});
 		});
+		
+		myApp.onRelocate();
+		
 
 	</script>
 </body>

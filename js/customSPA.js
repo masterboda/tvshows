@@ -25,7 +25,9 @@ class App {
 			});
 		});
 		
+		// this.onRelocate();
 	}
+	
 
 	qs(query) {
 		return this.appElm.querySelector(query);
@@ -62,12 +64,11 @@ class App {
 		}
 
 		if(matchCount === 0)
-			this.appElm.innerHTML = "<h2><center>Sorry, page you requested not exist.</center></h2>"+matchCount;
+			this.appElm.innerHTML = "<h2><center>Sorry, page you requested not exist.</center></h2>";
 	}
 
 	routeGet(route, func) {
 		this.routes.push({path: route, callback: func});
-		this.onRelocate();
 	}
 
 	requestAPI(opt) {
