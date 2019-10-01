@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+	<meta charset="utf-8" />
+	<title>TV shows</title>
+	<meta name="description" content="" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="shortcut icon" href="images/icons/" />
+
+	<link rel="stylesheet" href="/css/fonts.css">
+
+	<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+	
+	<div id="app">
+		<h1 class="main-title">TV shows library</h1>
+		<header class="head">
+			<nav>
+				<a href="/popular" class="nav-link active" >Popular TV shows</a>
+				<a href="/top-rated" class="nav-link" >TOP rated</a>
+			</nav>
+		</header>
+		<section class="tvshows-list"></section>
+		<div class="page-switcher">
+			<button class="prev primary-btn">Prev</button>
+			<div class="page-list">
+				<a href="/popular/page/1" class="page-link" >1</a>
+				<a href="/popular/page/2" class="page-link" >2</a>
+				<a href="/popular/page/3" class="page-link" >3</a>
+				<a href="/popular/page/4" class="page-link" >4</a>
+				<a href="/popular/page/5" class="page-link" >5</a>
+			</div>
+			<button class="next primary-btn">Next</button>
+		</div>
+	</div>
+
+	<script src="/js/customSPA.js"></script>
+	<script>
+		let myApp = new App({
+			elm: '#app',
+			propereties: {
+				a: 'test',
+				someInt: 2124124,
+				someArr: ['one', 'two']
+			}
+		});
+
+		myApp.routeGet(['/', '/popular'], function(urlParams) {
+			myApp.requestAPI({
+				props: 'tv/popular',
+				params : {
+					language: 'en-US',
+					page: urlParams.page || 1
+				}
+			}).then(response => response.json()).then(data => {
+				myApp.qs('.tvshows-list').innerHTML = JSON.stringify(data);
+			});
+		});
+
+		myApp.routeGet(['/top-rated'], function(urlParams) {
+			myApp.requestAPI({
+				props: 'tv/top_rated',
+				params : {
+					language: 'en-US',
+					page: urlParams.page || 1
+				}
+			}).then(response => response.json()).then(data => {
+				myApp.qs('.tvshows-list').innerHTML = JSON.stringify(data);
+			});
+		});
+
+	</script>
+</body>
+</html>
