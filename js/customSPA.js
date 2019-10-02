@@ -7,23 +7,7 @@ class App {
 		this.routes = [];
 		this.urlParams = {};
 
-		let links = this.qsa('a:not([target=_blank])');
-		// console.log(links);
-		links.forEach(item => {
-			item.addEventListener('click', e =>  {
-				let url = e.target.getAttribute('href');
-
-				history.pushState(null, null, url);
-				this.onRelocate();
-
-				window.addEventListener('popstate', e => {
-					this.onRelocate();
-				});
-
-				e.preventDefault();
-				e.stopPropagation();
-			});
-		});
+		this.catchLinks();
 		
 		// this.onRelocate();
 	}
@@ -38,7 +22,7 @@ class App {
 	}
 
 	onRelocate() {
-		let uri = location.pathname,
+		let uri = location.pathname,//.replace(/(\?\S+)|(\#\S+)$/, ''),
 			uriParts = uri.replace(/^\/|\/$/g, '').split('/'),
 			module = uriParts.shift(),
 			matchCount = 0;
@@ -53,7 +37,7 @@ class App {
 		
 		for(let route of this.routes) {
 			route.path = (typeof route.path == 'object') ? route.path : [route.path];
-			let pattern = route.path.map(item => item.replace(/^\/$/g, '^\/$')).join('|');
+			let pattern = route.path.map(item => item.replace(/^\/$/g, '^\/$').replace(/^\//g, '^\/')).join('|');
 
 			if(uri.match(pattern) != null) {
 				matchCount++;
@@ -65,6 +49,26 @@ class App {
 
 		if(matchCount === 0)
 			this.appElm.innerHTML = "<h2><center>Sorry, page you requested not exist.</center></h2>";
+	}
+
+	catchLinks() {
+		let links = this.qsa('a:not([target=_blank]):not([href=""]):not([href^="#"])');
+
+		links.forEach(item => {
+			item.onclick = e =>  {
+				let url = e.target.getAttribute('href');
+
+				history.pushState(null, null, url);
+				this.onRelocate();
+
+				window.addEventListener('popstate', e => {
+					this.onRelocate();
+				});
+
+				e.preventDefault();
+				e.stopPropagation();
+			};
+		});
 	}
 
 	routeGet(route, func) {
@@ -93,27 +97,75 @@ class App {
 		return elm;
 	}
 
+	applyTmpParams(tmp, params) {
+		return tmp.replace(/{{(.*)}}/g, (match, key) => {
+			key = key.trim();
+			if(params[key] !== undefined)
+				return params[key];
+			else
+				return match;
+		})
+	}
+
 	//pages: {current, total, link}
 	doPageSwitcher(pages) {
-		let elm = this.crElm('div', {className: 'page-switcher'}),
-			prev = elm.appendChild(this.crElm('a', {className: 'prev primary-btn', innerHTML: 'Prev'})),
-			pageList = elm.appendChild(this.crElm('div', {className: 'page-list'})),
-			next = elm.appendChild(this.crElm('a', {className: 'next primary-btn', innerHTML: 'Next'}));
+		// let elm = !this.qs('.page-switcher') ? this.appElm.appendChild(this.crElm('div', {className: 'page-switcher'})) : this.qs('page-switcher');
+		let tmpParams = {list: '', firstLink: pages.link + '/1', lastLink: pages.link + `/${pages.total}`},
+			btnsPerPage = 11;
+		let tmp = `
+		<div class="page-switcher">
+			<a href="{{prevLink}}" class="prev primary-btn">Prev</a>
+			<div class="page-list">
+				<a href="{{firstLink}}" class="page-link first" >\<\<</a>
+				{{list}}
+				<a href="{{lastLink}}" class="page-link last" >\>\></a>
+			</div>
+			<a href="{{nextLink}}" class="next primary-btn">Next</a>
+		</div>
+		`;
 
-		//max pages count in list: 10
-		let res = `<a href="${pages.link}/1" class="page-link first" >\<\<</a>`;
-		for(let i = 0; i < 10; i++){
-			let pageIndex = (pages.current + i),
-				activeLink = (pageIndex == pages.current) ? 'active' : '';
-
-			if(pageIndex > pages.total)
-				break;
-
-			res += `<a href="${pages.link}/${pageIndex}" class="page-link ${activeLink}" title="Page ${pageIndex} of ${pages.total}">${pageIndex}</a>`;
+		for(let i = pages.current - 2, j = 0; j <= btnsPerPage; j++, i++){
+			if(i > 0 && i <= pages.total){
+				let isActive = pages.current == i ? 'active' : '';
+				tmpParams.list += `<a href="${pages.link}/${i}" class="page-link ${isActive}" >${i}</a>`;
+			}
 		}
-		res += `<a href="${pages.link}/${pages.total}" class="page-link last" >\>\></a>`;
 
-		pageList.innerHTML = res;
-		this.appElm.appendChild(elm);
+		this.appElm.insertAdjacentHTML('beforeend', this.applyTmpParams(tmp, tmpParams));
+
+		this.catchLinks();
+	}
+
+	doTvList(data) {
+		let tmp = `
+			<section class="tvshows-list">
+				{{list}}
+			</section>
+		`;
+
+		this.appElm.insertAdjacentHTML('beforeend', this.applyTmpParams(tmp, {list: JSON.stringify(data)}));
+		this.catchLinks();
+	}
+
+	// navLinks: [{href, text}]
+	doHeader(title, navLinks, catergoryHref) {
+		let tmpParams = {title: title, navList: ''};
+		let tmp = `
+			<h1 class="main-title">{{title}}</h1>
+			<header class="head">
+				<nav>
+					{{navList}}
+				</nav>
+			</header>
+		`;
+
+		for(let link of navLinks) {
+			let isActive = link.href == catergoryHref ? 'active' : ''; 
+			tmpParams.navList += `<a href="${link.href}" class="nav-link ${isActive}" >${link.text}</a>`;
+		}
+
+
+		this.appElm.insertAdjacentHTML('afterbegin', this.applyTmpParams(tmp, tmpParams));
+		this.catchLinks();
 	}
 }
