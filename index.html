@@ -23,8 +23,8 @@
 			</nav>
 		</header>
 		<section class="tvshows-list"></section>
-		<div class="page-switcher">
-			<button class="prev primary-btn">Prev</button>
+		<!-- <div class="page-switcher">
+			<a href="/popular/page/1" class="prev primary-btn">Prev</a>
 			<div class="page-list">
 				<a href="/popular/page/1" class="page-link" >1</a>
 				<a href="/popular/page/2" class="page-link" >2</a>
@@ -32,8 +32,8 @@
 				<a href="/popular/page/4" class="page-link" >4</a>
 				<a href="/popular/page/5" class="page-link" >5</a>
 			</div>
-			<button class="next primary-btn">Next</button>
-		</div>
+			<a href="/popular/page/2" class="next primary-btn">Next</a>
+		</div> -->
 	</div>
 
 	<script src="/js/customSPA.js"></script>
@@ -52,6 +52,7 @@
 				}
 			}).then(response => response.json()).then(data => {
 				myApp.qs('.tvshows-list').innerHTML = JSON.stringify(data);
+				myApp.doPageSwitcher({current: data.page, total: data.total_pages, link: '/popular/page'});
 			});
 		});
 
@@ -64,6 +65,7 @@
 				}
 			}).then(response => response.json()).then(data => {
 				myApp.qs('.tvshows-list').innerHTML = JSON.stringify(data);
+				// myApp.doPageSwitcher({current: data.page, total: data.total_pages, link: '/top-rated/page'});
 			});
 		});
 		

@@ -108,3 +108,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
 .page-switcher .page-list .page-link {
   padding: 2px 5px;
 }
+
+.page-switcher .page-list .page-link.active, .page-switcher .page-list .page-link:hover {
+  color: #2D9CDB;
+}

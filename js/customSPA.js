@@ -83,4 +83,37 @@ class App {
 		}
 		return encoded.join('&');
 	}
+
+	crElm(name, params) {
+		let elm = document.createElement(name);
+		
+		for(let p in params)
+			elm[p] = params[p];
+		
+		return elm;
+	}
+
+	//pages: {current, total, link}
+	doPageSwitcher(pages) {
+		let elm = this.crElm('div', {className: 'page-switcher'}),
+			prev = elm.appendChild(this.crElm('a', {className: 'prev primary-btn', innerHTML: 'Prev'})),
+			pageList = elm.appendChild(this.crElm('div', {className: 'page-list'})),
+			next = elm.appendChild(this.crElm('a', {className: 'next primary-btn', innerHTML: 'Next'}));
+
+		//max pages count in list: 10
+		let res = `<a href="${pages.link}/1" class="page-link first" >\<\<</a>`;
+		for(let i = 0; i < 10; i++){
+			let pageIndex = (pages.current + i),
+				activeLink = (pageIndex == pages.current) ? 'active' : '';
+
+			if(pageIndex > pages.total)
+				break;
+
+			res += `<a href="${pages.link}/${pageIndex}" class="page-link ${activeLink}" title="Page ${pageIndex} of ${pages.total}">${pageIndex}</a>`;
+		}
+		res += `<a href="${pages.link}/${pages.total}" class="page-link last" >\>\></a>`;
+
+		pageList.innerHTML = res;
+		this.appElm.appendChild(elm);
+	}
 }
