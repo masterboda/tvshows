@@ -157,8 +157,13 @@ class App {
 		this.catchLinks();
 	}
 
+	doTvInfo(data){
+		this.appElm.insertAdjacentHTML('beforeend', `<pre>${JSON.stringify(data)}</pre>`);
+		this.catchLinks();
+	}
+
 	// navLinks: [{href, text}]
-	doHeader(title, navLinks, catergoryHref) {
+	doHeader(title, navLinks = [], catergoryHref) {
 		let tmpParams = {title: title, navList: ''};
 		let tmp = `
 			<h1 class="main-title">{{title}}</h1>

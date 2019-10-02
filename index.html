@@ -13,7 +13,7 @@
 	<link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-		
+
 	<div id="app"></div>
 
 	<script src="/js/customSPA.js"></script>
@@ -50,6 +50,17 @@
 				myApp.doHeader('TV shows library', [{href: '/popular', text: 'Popular TV shows'}, {href: '/top-rated', text: 'TOP rated'}], '/top-rated');
 				myApp.doTvList(data);
 				myApp.doPageSwitcher({current: data.page, total: data.total_pages, link: '/top-rated/page'});
+			});
+		});
+
+		myApp.routeGet(['/get-tv'], function(urlParams){
+			myApp.appElm.innerHTML = '';
+			myApp.requestAPI({
+				props: `tv/${urlParams.id}`,
+				params : {language: 'en-US'}
+			}).then(response => response.json()).then(data => {
+				myApp.doHeader(data.name);
+				myApp.doTvInfo(data);
 			});
 		});
 		
