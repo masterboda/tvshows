@@ -137,13 +137,23 @@ class App {
 	}
 
 	doTvList(data) {
+		let tmpParams = {list: ''};
 		let tmp = `
 			<section class="tvshows-list">
 				{{list}}
 			</section>
 		`;
 
-		this.appElm.insertAdjacentHTML('beforeend', this.applyTmpParams(tmp, {list: JSON.stringify(data)}));
+		for(let result of data.results) {
+			// console.log(result);
+			tmpParams.list += `
+				<div class="poster" style="background-image: url(http://image.tmdb.org/t/p/w185//${result.poster_path})">
+					<div class="poster-title"><h3><a href="/get-tv/id/${result.id}">${result.name}</a></h3></div>
+				</div>
+			`;
+		}
+
+		this.appElm.insertAdjacentHTML('beforeend', this.applyTmpParams(tmp, tmpParams));
 		this.catchLinks();
 	}
 
