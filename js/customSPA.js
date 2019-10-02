@@ -61,9 +61,9 @@ class App {
 				history.pushState(null, null, url);
 				this.onRelocate();
 
-				window.addEventListener('popstate', e => {
+				window.onpopstate = e => {
 					this.onRelocate();
-				});
+				}
 
 				e.preventDefault();
 				e.stopPropagation();
