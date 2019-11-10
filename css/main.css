@@ -148,6 +148,11 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
   opacity: 1;
 }
 
+.page-switcher .prev.disabled, .page-switcher .next.disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
 .page-switcher .page-list {
   margin: 0 20px;
 }

@@ -4,12 +4,11 @@ class App {
 	constructor(sett) {
 		this.appElm = document.querySelector(sett.elm);
 		this.props = sett.propereties;
-		this.routes = [];
+		this.router = {matches: 0, routes: [], default: () => this.appElm.innerHTML = "<h2><center>Sorry, page you requested not exist.</center></h2>"};
 		this.urlParams = {};
 
+		this.updateUrlParams();
 		this.catchLinks();
-		
-		// this.onRelocate();
 	}
 	
 
@@ -21,11 +20,12 @@ class App {
 		return Array.from(this.appElm.querySelectorAll(query));
 	}
 
-	onRelocate() {
+	updateUrlParams() {
+		console.log('Update url params');
+
 		let uri = location.pathname,//.replace(/(\?\S+)|(\#\S+)$/, ''),
 			uriParts = uri.replace(/^\/|\/$/g, '').split('/'),
-			module = uriParts.shift(),
-			matchCount = 0;
+			module = uriParts.shift();
 
 		// generate url parameters array (/home/page/3 => params = {page: 3})
 		if(uriParts.length > 0) {
@@ -34,24 +34,19 @@ class App {
 			else
 				for(let i = 0; i < uriParts.length; i++) this.urlParams[uriParts[i]] = uriParts[++i]; 
 		}
-		
-		for(let route of this.routes) {
-			route.path = (typeof route.path == 'object') ? route.path : [route.path];
-			let pattern = route.path.map(item => item.replace(/^\/$/g, '^\/$').replace(/^\//g, '^\/')).join('|');
+		else
+			this.urlParams = {};
+	}
 
-			if(uri.match(pattern) != null) {
-				matchCount++;
-				route.callback(this.urlParams);
-			}
-			console.log(`pattern: ${pattern}\nuri:${uri}\nmatches: ${JSON.stringify(uri.match(pattern))}\nmatchCount: ${matchCount}`);
-			
-		}
+	onRelocate() {
+		console.log('On relocate');
 
-		if(matchCount === 0)
-			this.appElm.innerHTML = "<h2><center>Sorry, page you requested not exist.</center></h2>";
+		this.updateUrlParams();
+		this.routeGetAll();
 	}
 
 	catchLinks() {
+		console.log('Catch links');
 		let links = this.qsa('a:not([target=_blank]):not([href=""]):not([href^="#"])');
 
 		links.forEach(item => {
@@ -71,8 +66,66 @@ class App {
 		});
 	}
 
-	routeGet(route, func) {
-		this.routes.push({path: route, callback: func});
+	render(component, elm) {
+		elm = elm || this.appElm;
+		elm.innerHTML = '';
+		component = component instanceof Array ? component : [component];
+
+		if(!(elm instanceof Node)){
+			throw new Error('Expected an html node as render container');
+			return;
+		}
+		
+		for(let item of component) {
+			if(item instanceof Node)
+				elm.appendChild(item);
+			else
+				throw new Error('Expected an html node as component');	
+		}
+
+		this.catchLinks();
+	}
+
+	routeGet(route) {
+		console.log('Route get');
+		route.path = (typeof route.path == 'object') ? route.path : [route.path];
+		let uri = location.pathname,
+			pattern = route.path.map(item => item.replace(/^\/$/g, '^\/$').replace(/^\//g, '^\/')).join('|');
+
+		if(uri.match(pattern) != null) {
+
+			if(route.params.component)
+				this.render(route.params.component);
+
+			if(route.params.callback && route.params.callback instanceof Function)
+				route.params.callback(this.urlParams);
+
+			this.router.matches++;
+			console.log(`pattern: ${pattern}\nuri:${uri}\nmatches: ${JSON.stringify(uri.match(pattern))}\nmatchCount: $\{matchCount\}`);
+			return true;
+		}
+		
+		return false;
+	}
+
+	routeGetAll() {
+		console.log('Route getAll');
+
+		this.router.matches = 0;
+
+		for(let route of this.router.routes) {
+			this.routeGet(route);
+		}
+
+		if(this.router.matches == 0)
+			this.router.default();
+	}
+
+	newRoute(path, params) {
+		console.log('New route');
+		let route = {path: path, params: params};
+		this.routeGet(route);
+		this.router.routes.push(route);
 	}
 
 	requestAPI(opt) {
@@ -97,6 +150,39 @@ class App {
 		return elm;
 	}
 
+	// useState(dflt) {
+	// 	return;
+	// }
+
+	createElement(name, props, innerContent) {
+		const elm = document.createElement(name);
+
+		for (let prop in props) {
+			if (typeof props[prop] === 'object')
+				Object.assign(elm[prop], props[prop]);
+			else
+				elm[prop] = props[prop];
+		}
+
+		if (innerContent) {
+
+			if (typeof innerContent !== 'object')
+				elm.appendChild(document.createTextNode(innerContent));
+			else {
+				if (innerContent instanceof Array) {
+					for (let item of innerContent) {
+						let append = item instanceof Node ? item : document.createTextNode(item);
+						elm.appendChild(append)
+					}
+				} else
+					elm.appendChild(innerContent);
+			}
+
+		}
+
+		return elm;
+	}
+
 	applyTmpParams(tmp, params) {
 		return tmp.replace(/{{(.*)}}/g, (match, key) => {
 			key = key.trim();
@@ -107,80 +193,4 @@ class App {
 		})
 	}
 
-	//pages: {current, total, link}
-	doPageSwitcher(pages) {
-		// let elm = !this.qs('.page-switcher') ? this.appElm.appendChild(this.crElm('div', {className: 'page-switcher'})) : this.qs('page-switcher');
-		let tmpParams = {list: '', firstLink: pages.link + '/1', lastLink: pages.link + `/${pages.total}`},
-			btnsPerPage = 11;
-		let tmp = `
-		<div class="page-switcher">
-			<a href="{{prevLink}}" class="prev primary-btn">Prev</a>
-			<div class="page-list">
-				<a href="{{firstLink}}" class="page-link first" >\<\<</a>
-				{{list}}
-				<a href="{{lastLink}}" class="page-link last" >\>\></a>
-			</div>
-			<a href="{{nextLink}}" class="next primary-btn">Next</a>
-		</div>
-		`;
-
-		for(let i = pages.current - 2, j = 0; j <= btnsPerPage; j++, i++){
-			if(i > 0 && i <= pages.total){
-				let isActive = pages.current == i ? 'active' : '';
-				tmpParams.list += `<a href="${pages.link}/${i}" class="page-link ${isActive}" >${i}</a>`;
-			}
-		}
-
-		this.appElm.insertAdjacentHTML('beforeend', this.applyTmpParams(tmp, tmpParams));
-
-		this.catchLinks();
-	}
-
-	doTvList(data) {
-		let tmpParams = {list: ''};
-		let tmp = `
-			<section class="tvshows-list">
-				{{list}}
-			</section>
-		`;
-
-		for(let result of data.results) {
-			// console.log(result);
-			tmpParams.list += `
-				<div class="poster" style="background-image: url(http://image.tmdb.org/t/p/w185//${result.poster_path})">
-					<div class="poster-title"><h3><a href="/get-tv/id/${result.id}">${result.name}</a></h3></div>
-				</div>
-			`;
-		}
-
-		this.appElm.insertAdjacentHTML('beforeend', this.applyTmpParams(tmp, tmpParams));
-		this.catchLinks();
-	}
-
-	doTvInfo(data){
-		this.appElm.insertAdjacentHTML('beforeend', `<pre>${JSON.stringify(data)}</pre>`);
-		this.catchLinks();
-	}
-
-	// navLinks: [{href, text}]
-	doHeader(title, navLinks = [], catergoryHref) {
-		let tmpParams = {title: title, navList: ''};
-		let tmp = `
-			<h1 class="main-title">{{title}}</h1>
-			<header class="head">
-				<nav>
-					{{navList}}
-				</nav>
-			</header>
-		`;
-
-		for(let link of navLinks) {
-			let isActive = link.href == catergoryHref ? 'active' : ''; 
-			tmpParams.navList += `<a href="${link.href}" class="nav-link ${isActive}" >${link.text}</a>`;
-		}
-
-
-		this.appElm.insertAdjacentHTML('afterbegin', this.applyTmpParams(tmp, tmpParams));
-		this.catchLinks();
-	}
 }
