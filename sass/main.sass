@@ -33,10 +33,14 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 
 #app
 	height: auto
-	padding: 40px
+	&.with-padding
+		padding: 40px
 
 .main-title
-	margin-bottom: 30px
+	margin: 30px 0
+
+.tvshows-list, .main-title, .head, .page-switcher
+	padding: 0 40px
 
 .head
 	nav
@@ -121,3 +125,29 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 
 			&.active, &:hover
 				color: $blue
+
+.wrapper
+	max-width: 980px
+	margin: 0 auto
+
+//tv-info page
+.tv-intro
+	background-position: center
+	background-repeat: no-repeat
+	background-size: cover
+
+	padding: 40px 0
+
+	.wrapper
+		display: grid
+		grid-template-columns: auto auto
+		grid-gap: 50px
+
+	.tv-poster
+		width: 300px
+		height: 450px
+		background-size: cover
+		background-repeat: 
+		background-position: center
+		border-radius: 5px
+		box-shadow: 0 0 10px #333

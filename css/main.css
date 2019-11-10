@@ -38,11 +38,18 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
 
 #app {
   height: auto;
+}
+
+#app.with-padding {
   padding: 40px;
 }
 
 .main-title {
-  margin-bottom: 30px;
+  margin: 30px 0;
+}
+
+.tvshows-list, .main-title, .head, .page-switcher {
+  padding: 0 40px;
 }
 
 .head nav {
@@ -163,4 +170,34 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
 
 .page-switcher .page-list .page-link.active, .page-switcher .page-list .page-link:hover {
   color: #2D9CDB;
+}
+
+.wrapper {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.tv-intro {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 40px 0;
+}
+
+.tv-intro .wrapper {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: auto auto;
+      grid-template-columns: auto auto;
+  grid-gap: 50px;
+}
+
+.tv-intro .tv-poster {
+  width: 300px;
+  height: 450px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 0 10px #333;
+          box-shadow: 0 0 10px #333;
 }
