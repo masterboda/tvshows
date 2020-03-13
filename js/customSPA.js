@@ -4,7 +4,7 @@ class App {
 	constructor(sett) {
 		this.appElm = document.querySelector(sett.elm);
 		this.props = sett.propereties;
-		this.router = {matches: 0, routes: [], default: () => this.appElm.innerHTML = "<h2><center>Sorry, page you requested not exist.</center></h2>"};
+		this.router = {routes: [], default: () => this.appElm.innerHTML = "<h2 style='padding: 50px 0' ><center>Sorry, page you requested not exist.</center></h2>"};
 		this.urlParams = {};
 
 		this.updateUrlParams();
@@ -32,7 +32,8 @@ class App {
 			if(uriParts.length == 1)
 				this.urlParams[module] = uriParts[0];
 			else
-				for(let i = 0; i < uriParts.length; i++) this.urlParams[uriParts[i]] = uriParts[++i]; 
+				for(let i = 0; i < uriParts.length; i++)
+					this.urlParams[uriParts[i]] = uriParts[++i]; 
 		}
 		else
 			this.urlParams = {};
@@ -42,7 +43,7 @@ class App {
 		console.log('On relocate');
 
 		this.updateUrlParams();
-		this.routeGetAll();
+		this.handleRoutes();
 	}
 
 	catchLinks() {
@@ -66,6 +67,38 @@ class App {
 		});
 	}
 
+	Router(routeList) {
+		this.router.routes = routeList;
+		this.handleRoutes();
+	}
+
+	handleRoutes() {
+		console.log('Route get');
+		let matches = 0;
+
+		for (let route of this.router.routes) {
+			route.path = (route.path instanceof Array) ? route.path : [route.path];
+			let uri = location.pathname,
+				pattern = route.path.map(item => item.replace(/^\/$/g, '^\/+$').replace(/^\//g, '^\/')).join('|');
+
+			if(uri.match(pattern) != null) {
+
+				if(route.component)
+					this.render(route.component);
+
+				if(route.callback && route.callback instanceof Function)
+					route.callback(this.urlParams);
+
+				matches++;
+				console.log(`pattern: ${pattern}\nuri:${uri}\nmatches: ${JSON.stringify(uri.match(pattern))}\nmatchCount: $\{matchCount\}`);
+			}
+		}
+
+		if(matches == 0)
+			this.router.default()
+		
+	}
+
 	render(component, elm) {
 		elm = elm || this.appElm;
 		elm.innerHTML = '';
@@ -84,48 +117,6 @@ class App {
 		}
 
 		this.catchLinks();
-	}
-
-	routeGet(route) {
-		console.log('Route get');
-		route.path = (typeof route.path == 'object') ? route.path : [route.path];
-		let uri = location.pathname,
-			pattern = route.path.map(item => item.replace(/^\/$/g, '^\/$').replace(/^\//g, '^\/')).join('|');
-
-		if(uri.match(pattern) != null) {
-
-			if(route.params.component)
-				this.render(route.params.component);
-
-			if(route.params.callback && route.params.callback instanceof Function)
-				route.params.callback(this.urlParams);
-
-			this.router.matches++;
-			console.log(`pattern: ${pattern}\nuri:${uri}\nmatches: ${JSON.stringify(uri.match(pattern))}\nmatchCount: $\{matchCount\}`);
-			return true;
-		}
-		
-		return false;
-	}
-
-	routeGetAll() {
-		console.log('Route getAll');
-
-		this.router.matches = 0;
-
-		for(let route of this.router.routes) {
-			this.routeGet(route);
-		}
-
-		if(this.router.matches == 0)
-			this.router.default();
-	}
-
-	newRoute(path, params) {
-		console.log('New route');
-		let route = {path: path, params: params};
-		this.routeGet(route);
-		this.router.routes.push(route);
 	}
 
 	requestAPI(opt) {
@@ -150,10 +141,6 @@ class App {
 		return elm;
 	}
 
-	// useState(dflt) {
-	// 	return;
-	// }
-
 	createElement(name, props, innerContent) {
 		const elm = document.createElement(name);
 
@@ -166,16 +153,12 @@ class App {
 
 		if (innerContent) {
 
-			if (typeof innerContent !== 'object')
-				elm.appendChild(document.createTextNode(innerContent));
-			else {
-				if (innerContent instanceof Array) {
-					for (let item of innerContent) {
-						let append = item instanceof Node ? item : document.createTextNode(item);
-						elm.appendChild(append)
-					}
-				} else
-					elm.appendChild(innerContent);
+			if(!(innerContent instanceof Array))
+				innerContent = [innerContent];
+
+			for (let item of innerContent) {
+				let append = item instanceof Node ? item : document.createTextNode(item);
+				elm.appendChild(append)
 			}
 
 		}
