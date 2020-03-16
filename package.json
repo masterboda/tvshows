@@ -1,0 +1,19 @@
+{
+  "name": "tvshows",
+  "version": "1.0.0",
+  "description": "A test SPA <br> This application needs rewrite mod enabled (Relocate all queries to <b>index.html</b>)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masterboda/tvshows.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/masterboda/tvshows/issues"
+  },
+  "homepage": "https://github.com/masterboda/tvshows#readme"
+}
