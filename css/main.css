@@ -2,7 +2,12 @@ body {
   font-family: 'Raleway', 'Helvetica', 'Arial', sans-serif;
 }
 
-input:active, input:invalid {
+#app {
+  min-width: 100%;
+  min-height: 100vh;
+}
+
+input:focus, input:active, input:invalid {
   -webkit-box-shadow: none;
           box-shadow: none;
   outline: none;
@@ -32,6 +37,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
   border: none;
   padding: 8px 20px;
   color: #fff;
+  cursor: pointer;
   font-size: 15px;
   border-radius: 5px;
 }
@@ -70,6 +76,37 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
 .head nav a:hover, .head nav a.active {
   background: #2D9CDB;
   color: #fff;
+}
+
+.search-bar {
+  margin-bottom: 30px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 60%;
+}
+
+.search-bar input {
+  -webkit-box-flex: 10;
+      -ms-flex-positive: 10;
+          flex-grow: 10;
+  border-radius: 5px;
+  font-size: 14px;
+  border: 1px solid #2D9CDB;
+  margin-right: 15px;
+  padding: 0 10px;
+}
+
+.search-bar input, .search-bar button {
+  height: 40px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.search-bar button {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
 }
 
 .tvshows-list {
@@ -178,6 +215,11 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
 }
 
 .tv-intro {
+  height: 100vh;
+  position: fixed;
+  width: 100%;
+  overflow: auto;
+  background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -187,12 +229,28 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
 .tv-intro .wrapper {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: auto auto;
-      grid-template-columns: auto auto;
-  grid-gap: 50px;
+  -ms-grid-rows: 1fr auto;
+      grid-template-rows: 1fr auto;
+      grid-template-areas: "top top" "bottom-left bottom-right";
+  -ms-grid-columns: 300px auto;
+      grid-template-columns: 300px auto;
+  grid-gap: 20px 50px;
+}
+
+.tv-intro .back-btn {
+  -ms-grid-row: 1;
+  -ms-grid-column: 1;
+  -ms-grid-column-span: 2;
+  grid-area: top;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
 }
 
 .tv-intro .tv-poster {
+  -ms-grid-row: 2;
+  -ms-grid-column: 1;
+  grid-area: bottom-left;
   width: 300px;
   height: 450px;
   background-size: cover;
@@ -200,4 +258,28 @@ body, h1, h2, h3, h4, h5, h6, p, ul {
   border-radius: 5px;
   -webkit-box-shadow: 0 0 10px #333;
           box-shadow: 0 0 10px #333;
+}
+
+.tv-intro .tv-overview h3, .tv-intro .tv-recommendations h4 {
+  margin-bottom: 10px;
+}
+
+.tv-intro .tv-info {
+  -ms-grid-row: 2;
+  -ms-grid-column: 2;
+  grid-area: bottom-right;
+  color: #fff;
+}
+
+.tv-intro .tv-info > * {
+  margin-bottom: 15px;
+}
+
+.tv-intro .recommendation-item a {
+  -webkit-transition: 0.3s color;
+  transition: 0.3s color;
+}
+
+.tv-intro .recommendation-item a:hover {
+  color: #2D9CDB;
 }

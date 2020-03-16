@@ -4,7 +4,11 @@ $blue: #2D9CDB
 body
 	font-family: 'Raleway', 'Helvetica', 'Arial', sans-serif
 
-input:active, input:invalid
+#app
+	min-width: 100%
+	min-height: 100vh
+
+input:focus, input:active, input:invalid
 	box-shadow: none
 	outline: none		
 
@@ -28,6 +32,7 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 	border: none
 	padding: 8px 20px
 	color: #fff
+	cursor: pointer
 	font-size: 15px
 	border-radius: 5px
 
@@ -58,6 +63,27 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 			&:hover, &.active
 				background: $blue
 				color: #fff
+	
+.search-bar
+	margin-bottom: 30px
+	display: flex
+	width: 60%
+
+	input
+		flex-grow: 10
+		border-radius: 5px
+		font-size: 14px
+		border: 1px solid $blue
+		margin-right: 15px
+		padding: 0 10px
+
+	input, button
+		height: 40px
+		box-sizing: border-box
+
+	button
+		flex-grow: 1
+
 
 .tvshows-list
 	display: flex
@@ -132,6 +158,11 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 
 //tv-info page
 .tv-intro
+	height: 100vh
+	position: fixed
+	width: 100%
+	overflow: auto
+	background-attachment: fixed
 	background-position: center
 	background-repeat: no-repeat
 	background-size: cover
@@ -140,10 +171,19 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 
 	.wrapper
 		display: grid
-		grid-template-columns: auto auto
-		grid-gap: 50px
+		grid-template-rows: 1fr auto
+		grid-template-areas: "top top" "bottom-left bottom-right"
+		grid-template-columns: 300px auto
+		grid-gap: 20px 50px
+
+	.back-btn
+		grid-area: top
+		color: #fff
+		font-size: 22px
+		cursor: pointer
 
 	.tv-poster
+		grid-area: bottom-left
 		width: 300px
 		height: 450px
 		background-size: cover
@@ -151,3 +191,19 @@ body, h1, h2, h3, h4, h5, h6, p, ul
 		background-position: center
 		border-radius: 5px
 		box-shadow: 0 0 10px #333
+
+	.tv-overview h3, .tv-recommendations h4
+		margin-bottom: 10px
+
+	.tv-info
+		grid-area: bottom-right
+		color: #fff
+
+		&>*
+			margin-bottom: 15px
+
+	.recommendation-item a
+		transition: 0.3s color
+
+		&:hover
+			color: $blue

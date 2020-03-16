@@ -6,6 +6,7 @@ class App {
 		this.props = sett.propereties;
 		this.router = {routes: [], default: () => this.appElm.innerHTML = "<h2 style='padding: 50px 0' ><center>Sorry, page you requested not exist.</center></h2>"};
 		this.urlParams = {};
+		this.paramsList = [];
 
 		this.updateUrlParams();
 		this.catchLinks();
@@ -22,10 +23,9 @@ class App {
 
 	updateUrlParams() {
 		console.log('Update url params');
-
-		let uri = location.pathname,//.replace(/(\?\S+)|(\#\S+)$/, ''),
-			uriParts = uri.replace(/^\/|\/$/g, '').split('/'),
-			module = uriParts.shift();
+			
+		this.paramsList = location.pathname.replace(/^\/|\/$/g, '').split('/');
+		let [module, ...uriParts] = this.paramsList;
 
 		// generate url parameters array (/home/page/3 => params = {page: 3})
 		if(uriParts.length > 0) {
@@ -67,6 +67,11 @@ class App {
 		});
 	}
 
+	redirect(url) {
+		history.pushState(null, null, url);
+		this.onRelocate();
+	}
+
 	Router(routeList) {
 		this.router.routes = routeList;
 		this.handleRoutes();
@@ -99,7 +104,7 @@ class App {
 		
 	}
 
-	render(component, elm) {
+	render(component, elm, callback) {
 		elm = elm || this.appElm;
 		elm.innerHTML = '';
 		component = component instanceof Array ? component : [component];
@@ -116,11 +121,14 @@ class App {
 				throw new Error('Expected an html node as component');	
 		}
 
+		if(callback instanceof Function)
+			callback();
+
 		this.catchLinks();
 	}
 
 	requestAPI(opt) {
-		return fetch(`https://api.themoviedb.org/3/${opt.props}?api_key=${API_KEY}&${this.urlencode(opt.params)}`);
+		return fetch(`https://api.themoviedb.org/3/${opt.props}?api_key=${API_KEY}${opt.params ? '&' + this.urlencode(opt.params) : ''}`);
 	}
 
 

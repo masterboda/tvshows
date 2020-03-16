@@ -27,7 +27,7 @@
 
 		/* Data
 		======================================= */
-		const nav = [{href: '/popular', text: 'Popular TV shows'}, {href: '/top-rated', text: 'TOP rated'}];
+		const nav = [{href: '/trending/tv', text: 'Trending TV shows'}, {href: '/trending/movies', text: 'Trending Movies'}];
 
 
 		/* Routes
@@ -35,113 +35,120 @@
 
 		myApp.Router([
 			{
-				path: ['/', '/popular', '/index.html'],
+				path: ['/', '/trending', '/trending/tv', '/index.html'],
 				component: null,
 				callback: function(urlParams) {
 					myApp.requestAPI({
-						props: 'tv/popular',
-						params : {
-							language: 'en-US',
-							page: urlParams.page || 1
+						props: 'trending/tv/week',
+						params: {
+							page: urlParams.tv || 1
 						}
 					})
 					.then(response => response.json())
 					.then(data => {
-						myApp.render(Popular(data));
+						myApp.render(TrendingTV(data));
 					});
 				}
 			},
 
 			{
-				path: '/top-rated',
+				path: '/trending/movies',
 				component: null,
 				callback: function(urlParams) {
 					myApp.requestAPI({
-						props: 'tv/top_rated',
-						params : {
-							language: 'en-US',
-							page: urlParams.page || 1
+						props: 'trending/movie/week',
+						params: {
+							page: urlParams.movies || 1
 						}
 					})
 					.then(response => response.json())
 					.then(data => {
-						myApp.render(TopRated(data));
+						myApp.render(TrendingMovies(data));
 					});
 				}
 			},
 
 			{
-				path: '/get-tv',
+				path: '/search',
+				component: null,
+				callback: function(urlParams) {
+					myApp.requestAPI({
+						props: `search/${urlParams.type}`,
+						params: {
+							query: urlParams.q,
+							page: urlParams.page || 1
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						myApp.render(Search(data));
+					});
+				}
+			},
+
+			{
+				path: '/tv',
 				component: null,
 				callback: function(urlParams) {
 					myApp.requestAPI({
 						props: `tv/${urlParams.id}`,
-						params : {
+						params: {
 							language: 'en-US',
 						}
 					})
 					.then(response => response.json())
 					.then(data => {
-						myApp.render(TvInfo(data));
+						myApp.render(TvInfo(data), myApp.appElm, () => {
+							
+							myApp.requestAPI({
+								props: `tv/${urlParams.id}/recommendations`
+							})
+							.then(response => response.json())
+							.then(data => {
+								console.log('tv-rel', data)
+								myApp.render(
+									data.results.slice(0, 5).map(item => Recommendation(item, 'tv')),
+									myApp.qs('.tv-recommendations .recommendation-list')
+								)
+							})
+
+						});
+					});
+				}
+			},
+
+			{
+				path: '/movie',
+				component: null,
+				callback: function(urlParams) {
+					myApp.requestAPI({
+						props: `movie/${urlParams.id}`,
+						params: {
+							language: 'en-US',
+						}
+					})
+					.then(response => response.json())
+					.then(data => {
+						myApp.render(TvInfo(data), myApp.appElm, () => {
+							
+							myApp.requestAPI({
+								props: `movie/${urlParams.id}/recommendations`
+							})
+							.then(response => response.json())
+							.then(data => {
+								console.log('mv-rel', data)
+								myApp.render(
+									data.results.slice(0, 5).map(item => Recommendation(item, 'movie')),
+									myApp.qs('.tv-recommendations .recommendation-list')
+								)
+							})
+
+						});
 					});
 				}
 			}
 
 		]);
-		
-		/*
-		myApp.newRoute(['/', '/popular'],
-		{
-			component: null,
-			callback: function(urlParams) {
-				myApp.requestAPI({
-					props: 'tv/popular',
-					params : {
-						language: 'en-US',
-						page: urlParams.page || 1
-					}
-				})
-				.then(response => response.json())
-				.then(data => {
-					myApp.render(Popular(data));
-				});
-			}
-		});
-
-		myApp.newRoute('/top-rated',
-		{
-			component: null,
-			callback: function(urlParams) {
-				myApp.requestAPI({
-					props: 'tv/top_rated',
-					params : {
-						language: 'en-US',
-						page: urlParams.page || 1
-					}
-				})
-				.then(response => response.json())
-				.then(data => {
-					myApp.render(TopRated(data));
-				});
-			}
-		});
-
-		myApp.newRoute('/get-tv',
-		{
-			component: null,
-			callback: function(urlParams) {
-				myApp.requestAPI({
-					props: `tv/${urlParams.id}`,
-					params : {
-						language: 'en-US',
-					}
-				})
-				.then(response => response.json())
-				.then(data => {
-					myApp.render(TvInfo(data));
-				});
-			}
-		});*/	
 
 	</script>
 </body>
