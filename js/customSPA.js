@@ -48,10 +48,10 @@ class App {
 
 	catchLinks() {
 		console.log('Catch links');
-		let links = this.qsa('a:not([target=_blank]):not([href=""]):not([href^="#"])');
+		
+		document.body.addEventListener('click', e => {
 
-		links.forEach(item => {
-			item.onclick = e =>  {
+			if(e.target.matches('a:not([target=_blank]):not([href=""]):not([href^="#"])')) {
 				let url = e.target.getAttribute('href');
 
 				history.pushState(null, null, url);
@@ -63,7 +63,9 @@ class App {
 
 				e.preventDefault();
 				e.stopPropagation();
-			};
+				console.log('Click!');
+			}
+
 		});
 	}
 
@@ -124,7 +126,6 @@ class App {
 		if(callback instanceof Function)
 			callback();
 
-		this.catchLinks();
 	}
 
 	requestAPI(opt) {
